@@ -16,6 +16,23 @@ local BUILT_IN_SENSITIVE_HEADERS = {
 	["proxy-authorization"] = true,
 }
 
+local BUILT_IN_SENSITIVE_QUERY_ARGS = {
+    ["password"] = true,
+    ["passwd"] = true,
+    ["pwd"] = true,
+    ["secret"] = true,
+    ["token"] = true,
+    ["access_token"] = true,
+    ["refresh_token"] = true,
+    ["id_token"] = true,
+    ["client_secret"] = true,
+    ["api_key"] = true,
+    ["apikey"] = true,
+    ["jwt"] = true,
+    ["sessionid"] = true,
+    ["session_id"] = true,
+}
+
 local function build_lookup(list)
 	local lookup = {}
 
@@ -60,6 +77,29 @@ function M.redact_headers(headers, config, scope)
 		local lower_name = string.lower(tostring(name))
 
 		if BUILT_IN_SENSITIVE_HEADERS[lower_name] and not unredacted[lower_name] then
+			redacted[lower_name] = REDACTED
+		else
+			redacted[lower_name] = value
+		end
+	end
+
+	return redacted
+end
+
+function M.redact_query_args(args, config)
+	if not args then
+		return {}
+	end
+
+	config = config or {}
+
+	local redacted = {}
+	local unredacted = build_lookup(config.query_args_unredacted)
+
+	for name, value in pairs(args) do
+		local lower_name = string.lower(tostring(name))
+
+		if BUILT_IN_SENSITIVE_QUERY_ARGS[lower_name] and not unredacted[lower_name] then
 			redacted[lower_name] = REDACTED
 		else
 			redacted[lower_name] = value

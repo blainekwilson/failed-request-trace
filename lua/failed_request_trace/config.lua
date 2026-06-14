@@ -12,6 +12,7 @@ local default_config = {
 
 	capture_request_headers = true,
 	capture_response_headers = true,
+    capture_query_args = true,
 
 	request_headers_allowlist = {
 		["host"] = true,
@@ -51,6 +52,15 @@ local default_config = {
 	-- Dangerous: values listed here may expose tokens, cookies, or secrets in logs.
 	request_headers_unredacted = {},
 	response_headers_unredacted = {},
+
+    query_args_allowlist = {
+        ["username"] = true,
+        ["user"] = true,
+        ["userid"] = true,
+        ["email"] = true,
+    },
+
+    query_args_unredacted = {},
 }
 
 -- Get a copy of the default configuration

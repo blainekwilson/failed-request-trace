@@ -1,9 +1,8 @@
 -- lua/failed_request_trace/capture.lua
---
--- Request and response data capture.
--- Captures headers, timing, and metadata within allowlist constraints.
 
 local M = {}
+
+local redact = require("failed_request_trace.redact")
 
 local function build_lookup(list)
 	local lookup = {}
@@ -12,7 +11,7 @@ local function build_lookup(list)
 		if type(key) == "number" then
 			lookup[string.lower(tostring(value))] = true
 		else
-			lookup[string.lower(tostring(key))] = value and true or false
+		lookup[string.lower(tostring(key))] = value and true or false
 		end
 	end
 
@@ -34,26 +33,52 @@ local function capture_allowed_headers(all_headers, allowlist)
 	return captured
 end
 
--- Capture request data
--- Called in the access phase
+local function capture_allowed_query_args(all_args, allowlist)
+	local captured = {}
+	local allowed = build_lookup(allowlist)
+
+	for name, value in pairs(all_args or {}) do
+		local lower_name = string.lower(tostring(name))
+
+		if allowed[lower_name] then
+			captured[lower_name] = value
+		end
+	end
+
+	return captured
+end
+
 function M.capture_request(config)
 	local request = {
 		method = ngx.req.get_method(),
 		uri = ngx.var.uri,
-		args = ngx.var.args or "",
+		query = {},
 		host = ngx.var.host or ngx.var.server_name or "",
 		headers = {},
 	}
 
 	if config.capture_request_headers then
-		request.headers = capture_allowed_headers(ngx.req.get_headers(), config.request_headers_allowlist)
+		request.headers = capture_allowed_headers(
+			ngx.req.get_headers(),
+			config.request_headers_allowlist
+		)
+	end
+
+	if config.capture_query_args then
+		local allowed_query_args = capture_allowed_query_args(
+			ngx.req.get_uri_args(),
+			config.query_args_allowlist
+		)
+
+		request.query = redact.redact_query_args(
+			allowed_query_args,
+			config
+		)
 	end
 
 	return request
 end
 
--- Capture response data
--- Called in the header_filter phase
 function M.capture_response(config)
 	local response = {
 		status = ngx.status or 0,
@@ -65,14 +90,15 @@ function M.capture_response(config)
 	end
 
 	if config.capture_response_headers then
-		response.headers = capture_allowed_headers(ngx.resp.get_headers(), config.response_headers_allowlist)
+		response.headers = capture_allowed_headers(
+			ngx.resp.get_headers(),
+			config.response_headers_allowlist
+		)
 	end
 
 	return response
 end
 
--- Capture timing information
--- Called in the log phase
 function M.capture_timing()
 	local timing = {
 		request_time = tonumber(ngx.var.request_time) or 0,

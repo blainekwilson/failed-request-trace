@@ -1,23 +1,18 @@
 -- lua/failed_request_trace/logger.lua
---
--- Trace emission and logging.
--- Serializes traces and writes them to nginx error log via ngx.log.
 
 local M = {}
 
--- Emit a trace log
--- Serializes the trace and writes to nginx error log at INFO level
+local serializer = require("failed_request_trace.serializer")
+
 function M.emit(trace, config)
-	if not trace then
-		return
-	end
+    local serialized, err = serializer.serialize(trace, config)
 
-	local serializer = require("failed_request_trace.serializer")
-	local serialized = serializer.serialize(trace, config)
+    if not serialized then
+        ngx.log(ngx.ERR, "FailedRequestTrace serialization failed: ", err or "unknown error")
+        return
+    end
 
-	if serialized and serialized ~= "" then
-		ngx.log(ngx.INFO, serialized)
-	end
+    io.stdout:write(serialized .. "\n")
 end
 
 return M
