@@ -47,7 +47,7 @@ docker build -t failed-request-trace:latest -f nginx/Dockerfile .
 Run the container:
 
 ``` bash
-docker run -p 80:80 failed-request-trace:latest
+docker run -p 80:8080 failed-request-trace:latest
 ```
 
 Open a browser:
