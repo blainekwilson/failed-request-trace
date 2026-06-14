@@ -15,18 +15,18 @@ In many environments, these claims are difficult to verify because there is insu
 ## Typical Architecture
 
 Client
-    ↓
+ ↓
 CDN
-    ↓
+ ↓
 WAF
-    ↓
+ ↓
+API Gateway
+ ↓
 Load Balancer
-    ↓
-NGINX/OpenResty
-    ↓
+ ↓
+NGINX
+ ↓
 Application
-
-Example Request
 
 ```Plain text
 GET /login HTTP/1.1

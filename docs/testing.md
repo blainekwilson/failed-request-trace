@@ -9,7 +9,7 @@ This document provides testing procedures for validating Failed Request Trace (F
 Build the container:
 
 ```bash
-docker build -t failed-request-trace:latest -f nginx/Dockerfile .
+docker build -t failed-request-trace:latest -f modules/nginx-openresty/nginx/Dockerfile modules/nginx-openresty
 ```
 
 ### Run

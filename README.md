@@ -2,7 +2,7 @@
 
 Failed Request Trace (FRT) is a cloud-native request tracing and diagnostics framework for NGINX and OpenResty.
 
-The project was inspired by Microsoft IIS Failed Request Event Buffering (FREB) and provides detailed request and response visibility for modern architectures that use reverse proxies, load balancers, WAFs, containers, and cloud-native infrastructure.
+The project was inspired by Microsoft IIS Failed Request Event Buffering (FREB) and provides detailed request and response visibility for modern architectures that use reverse proxies, load balancers, API gateways, service meshes, ingress controllers, containers, serverless runtimes, and cloud-native infrastructure.
 
 FRT is designed to help engineers answer questions such as:
 
@@ -36,7 +36,7 @@ FRT captures request and response metadata and emits structured traces suitable 
 * Container-friendly logging
 * Cloud-native deployment model
 
-## Security
+## Security Model
 
 FRT is designed to be secure by default.
 
@@ -49,7 +49,7 @@ Sensitive headers may be explicitly unredacted for troubleshooting purposes when
 ### Build the container:
 
 ```bash
-docker build -t failed-request-trace:latest -f nginx/Dockerfile .
+docker build -t failed-request-trace:latest -f modules/nginx-openresty/nginx/Dockerfile modules/nginx-openresty
 ```
 
 ### Run the container:
@@ -118,10 +118,34 @@ curl -i 'http://localhost/?username=b&password=password' \
 }
 ```
 
+## Supported Architectures
+
+Current:
+- NGINX
+- OpenResty
+
+Planned:
+- AWS Lambda
+- AWS API Gateway
+- Envoy
+- Kubernetes Ingress
+- Cloudflare Workers
+
 ## Roadmap
 
-* AWS ECS/Fargate deployment examples
-* CloudWatch integration
-* OpenSearch integration
-* WAF troubleshooting playbooks
-* Additional proxy and ingress support
+v0.2.0
+- AWS Lambda support
+- AWS API Gateway support
+- AWS ECS/Fargate deployment examples
+- CloudWatch integration
+
+v0.3.0
+- Kubernetes deployment examples
+- Envoy support
+- OpenSearch integration
+
+Future
+- Cloudflare Workers
+- Azure Functions
+- GCP Cloud Run
+- XML output
